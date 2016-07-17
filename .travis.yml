@@ -14,9 +14,12 @@ addons:
     - sbuild
 
 script:
-  - go test ./...
+  - go test ./ -skip_test_cleanup
+  - go test ./loggedexec
   # Check whether files are syntactically correct.
   - "gofmt -l $(find . -name '*.go' | tr '\\n' ' ') >/dev/null"
   # Check whether files were not gofmt'ed.
   - "gosrc=$(find . -name '*.go' | tr '\\n' ' '); [ $(gofmt -l $gosrc 2>&- | wc -l) -eq 0 ] || (echo 'gofmt was not run on these files:'; gofmt -l $gosrc 2>&-; false)"
   - go tool vet .
+
+after_failure: bash -c 'head -500 /tmp/test-merge-and-build-*/**/*'

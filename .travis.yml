@@ -10,15 +10,24 @@ addons:
     packages:
     - git
     - devscripts
-    - git-buildpackage
+    # For sbuild:
     - sbuild
+    - debootstrap
+    # For building the package:
+    - git-buildpackage
+    - debhelper
 
-install:
+before_install:
+  # Generating keys using sbuild-update --keygen takes so long that travis
+  # times out. Hence, we use pre-generated keys. The resulting packages are
+  # discarded anyway, so these keys being public is not an issue.
+  - sudo cp travis/sbuild-key.pub /var/lib/sbuild/apt-keys/sbuild-key.pub
+  - sudo cp travis/sbuild-key.sec /var/lib/sbuild/apt-keys/sbuild-key.sec
   - sudo sbuild-adduser travis
-  - sudo sbuild-createchroot --include=eatmydata,ccache unstable /srv/chroot/unstable-amd64 http://deb.debian.org/debian
+  - sudo sbuild-createchroot --include=eatmydata,ccache,gnupg unstable /srv/chroot/unstable-amd64 http://deb.debian.org/debian
 
 script:
-  - go test ./ -skip_test_cleanup
+  - echo go test ./ -skip_test_cleanup | newgrp sbuild
   - go test ./loggedexec
   # Check whether files are syntactically correct.
   - "gofmt -l $(find . -name '*.go' | tr '\\n' ' ') >/dev/null"

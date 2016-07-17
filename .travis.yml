@@ -13,6 +13,10 @@ addons:
     - git-buildpackage
     - sbuild
 
+install:
+  - sudo sbuild-adduser travis
+  - sudo sbuild-createchroot --include=eatmydata,ccache unstable /srv/chroot/unstable-amd64 http://deb.debian.org/debian
+
 script:
   - go test ./ -skip_test_cleanup
   - go test ./loggedexec

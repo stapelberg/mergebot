@@ -6,6 +6,14 @@ language: go
 go:
   - 1.6
 
+addons:
+  apt:
+    packages:
+    - git
+    - devscripts
+    - git-buildpackage
+    - sbuild
+
 script:
   - go test ./...
   # Check whether files are syntactically correct.
